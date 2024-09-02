@@ -32,10 +32,10 @@ schema_view = get_schema_view(
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('auth/', include('authAPI.urls')),
-    path('book/', include('bookAPI.urls')),
-    path('order/', include('orderAPI.urls')),
-    path('review/', include('reviewAPI.urls')),
-    path('recommendation/', include('recommendationAPI.urls')),
+    path('books/', include('bookAPI.urls')),
+    path('orders/', include('orderAPI.urls')),
+    path('reviews/', include('reviewAPI.urls')),
+    path('recommendations/', include('recommendationAPI.urls')),
     path(
         "swagger",
         schema_view.with_ui("swagger", cache_timeout=0),

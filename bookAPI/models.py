@@ -11,4 +11,3 @@ class Book(models.Model):
     stock = models.IntegerField(default=0)
     published_date = models.DateField()
     genre = models.CharField(max_length=50)
-    orders = models.ManyToManyField("Order")

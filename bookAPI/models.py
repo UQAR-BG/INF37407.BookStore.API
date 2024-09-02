@@ -14,3 +14,5 @@ class Book(models.Model):
 
     def __str__(self):
         return "{}, Author: {}, ISBN: {}".format(self.title, self.author, self.isbn)
+    
+    using = 'books'

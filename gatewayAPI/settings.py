@@ -91,9 +91,21 @@ DATABASES = {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
     },
-    'auth': {
+    'books': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'authAPI' / 'auth.sqlite3'
+        'NAME': BASE_DIR / 'bookAPI' / 'books.sqlite3'
+    },
+    'orders': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'orderAPI' / 'orders.sqlite3'
+    },
+    'reviews': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'reviewAPI' / 'reviews.sqlite3'
+    },
+    'recommendations': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'recommendationAPI' / 'recommendations.sqlite3'
     }
 }
 
@@ -158,3 +170,5 @@ REST_FRAMEWORK = {
 }
 
 AUTH_USER_MODEL = "authAPI.User"
+
+DATABASE_ROUTERS = ['bookAPI.dbrouter.BookDBRouter', 'orderAPI.dbrouter.OrderDBRouter', 'recommendationAPI.dbrouter.RecommendationDBRouter', 'reviewAPI.dbrouter.ReviewDBRouter']

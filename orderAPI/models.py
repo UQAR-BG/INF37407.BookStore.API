@@ -6,6 +6,8 @@ class User(models.Model):
 
     def __str__(self):
         return self.email
+    
+    using = 'orders'
 
 class Order(models.Model):
     id = models.AutoField(primary_key=True)
@@ -14,6 +16,8 @@ class Order(models.Model):
     status = models.CharField(choices = STATUS_CHOICES, max_length=1)
     total_price = models.DecimalField(max_digits=10, decimal_places=2)
     made_by_user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    using = 'orders'
 
 class Book(models.Model):
     id = models.AutoField(primary_key=True)
@@ -24,6 +28,8 @@ class Book(models.Model):
 
     def __str__(self):
         return self.isbn
+    
+    using = 'orders'
 
 class BookLine(models.Model):
     id = models.AutoField(primary_key=True)
@@ -31,3 +37,5 @@ class BookLine(models.Model):
     price = models.DecimalField(max_digits=5, decimal_places=2)
     related_to_book = models.ForeignKey(Book, on_delete=models.CASCADE, null=True)
     placed_in_order = models.ForeignKey(Order, on_delete=models.CASCADE, null=True)
+
+    using = 'orders'

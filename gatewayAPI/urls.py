@@ -14,10 +14,31 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+from drf_yasg.views import get_schema_view
+from drf_yasg import openapi
+
 from django.contrib import admin
 from django.urls import path, include
+
+schema_view = get_schema_view(
+    openapi.Info(
+        title="Book store API",
+        default_version="v1.0",
+        description="Book store app'",
+    ),
+    public=True,
+)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('auth/', include('authAPI.urls')),
+    path('book/', include('bookAPI.urls')),
+    path('order/', include('orderAPI.urls')),
+    path('review/', include('reviewAPI.urls')),
+    path('recommendation/', include('recommendationAPI.urls')),
+    path(
+        "swagger",
+        schema_view.with_ui("swagger", cache_timeout=0),
+        name="schema-swagger-ui",
+    ),
 ]

@@ -45,7 +45,11 @@ INSTALLED_APPS = [
 
     # Custom applications
     'coreApp.apps.CoreappConfig',
-    'authAPI.apps.AuthapiConfig'
+    'authAPI.apps.AuthapiConfig',
+    'bookAPI.apps.BookapiConfig',
+    'orderAPI.apps.OrderapiConfig',
+    'reviewAPI.apps.ReviewapiConfig',
+    'recommendationAPI.apps.RecommendationapiConfig',
 ]
 
 MIDDLEWARE = [

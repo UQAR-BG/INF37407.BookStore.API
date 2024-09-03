@@ -1,18 +1,19 @@
-import os, json
+import os, json, uuid
 
 from django.core.management.base import BaseCommand
 
-from orderAPI.models import Book
-from orderAPI.serializers import BookSerializer
-from coreApp.services.rabbitmq import FastConsumer
+from recommendationAPI.models import Book
+from recommendationAPI.serializers import BookSerializer
+from coreApp.services.rabbitmq import Consumer
 
 class Command(BaseCommand):
     help = "Consumes get all book created messages from RabbitMQ"
 
     def handle(self, *args, **options):
-        consumer = FastConsumer(
+        consumer = Consumer(
             callback=self._callback,
-            name=os.getenv('BOOKS_QUEUE'),
+            name = f"books_queue_{uuid.uuid4()}",
+            auto_delete=True,
             exchange=os.getenv('BOOKS_EXCHANGE'),
             routing_key=os.getenv('BOOKS_CREATED_ROUTING_KEY')
         )

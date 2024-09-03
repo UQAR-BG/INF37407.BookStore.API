@@ -1,4 +1,5 @@
 from django.db import models
+from rest_framework.serializers import ValidationError
 
 class User(models.Model):
     id = models.AutoField(primary_key=True)
@@ -29,6 +30,19 @@ class Book(models.Model):
 
     def __str__(self):
         return self.isbn
+    
+    def validate_unique_isbn(self, exclude=None):
+        if (
+            Book.objects
+            .exclude(id=self.id)
+            .filter(isbn=self.isbn)
+            .exists()
+        ):
+            raise ValidationError({ 'isbn': ['ISBN must be unique per book.',]})
+
+    def save(self, *args, **kwargs):
+        self.validate_unique_isbn()    
+        super().save(*args, **kwargs)
     
     using = 'orders'
 

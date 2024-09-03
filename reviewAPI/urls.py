@@ -1,12 +1,12 @@
 from django.urls import path
 
-from .views import ListCreateUsers, RetrieveDestroyUpdateUsers, ListCreateBooks, RetrieveDestroyUpdateBooks, ListCreateReviews, RetrieveDestroyReviews
+from .views import ListUsers, RetrieveUsers, ListBooks, RetrieveBooks, ListCreateReviews, RetrieveDestroyReviews
 
 urlpatterns = [
-    path("users/", ListCreateUsers.as_view(), name="ListCreateUsers"),
-    path("users/<str:email>", RetrieveDestroyUpdateUsers.as_view(), name="RetrieveDestroyUpdateUsers"),
-    path("books/", ListCreateBooks.as_view(), name="ListCreateBooks"),
-    path("books/<str:isbn>", RetrieveDestroyUpdateBooks.as_view(), name="RetrieveDestroyUpdateBooks"),
+    path("users/", ListUsers.as_view(), name="ListUsers"),
+    path("users/<str:email>", RetrieveUsers.as_view(), name="RetrieveUsers"),
+    path("books/", ListBooks.as_view(), name="ListBooks"),
+    path("books/<str:isbn>", RetrieveBooks.as_view(), name="RetrieveBooks"),
     path("", ListCreateReviews.as_view(), name="ListCreateReviews"),
     path("<int:pk>", RetrieveDestroyReviews.as_view(), name="RetrieveDestroyReviews")
 ]

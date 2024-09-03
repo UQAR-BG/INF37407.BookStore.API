@@ -3,20 +3,20 @@ from rest_framework import generics
 from .models import User, Book, Recommendation
 from .serializers import UserSerializer, BookSerializer, RecommendationSerializer
 
-class ListCreateUsers(generics.ListCreateAPIView):
+class ListUsers(generics.ListAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
-class RetrieveDestroyUpdateUsers(generics.RetrieveUpdateDestroyAPIView):
+class RetrieveUsers(generics.RetrieveAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     lookup_field = "email"
 
-class ListCreateBooks(generics.ListCreateAPIView):
+class ListBooks(generics.ListAPIView):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
 
-class RetrieveDestroyUpdateBooks(generics.RetrieveUpdateDestroyAPIView):
+class RetrieveBooks(generics.RetrieveAPIView):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
     lookup_field = "isbn"

@@ -1,10 +1,9 @@
 import os
 
 from django.core.management.base import BaseCommand
-from coreApp.services.rabbitmq import FastPublisher
 
 from bookAPI.models import Book, BookSerializer
-from coreApp.services.rabbitmq import AmqpMessage, FastPublisher
+from coreApp.services.rabbitmq import AmqpMessage, FanoutPublisher
 
 class Command(BaseCommand):
     help = "Publishes all books created messages to RabbitMQ"
@@ -12,7 +11,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         books = Book.objects.all()
 
-        publisher = FastPublisher(name=os.getenv('BOOKS_EXCHANGE'))
+        publisher = FanoutPublisher(name=os.getenv('BOOKS_EXCHANGE'))
 
         for book in books:
             serializer = BookSerializer(book)

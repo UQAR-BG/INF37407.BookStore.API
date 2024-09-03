@@ -4,6 +4,9 @@ class User(models.Model):
     id = models.AutoField(primary_key=True)
     email = models.EmailField(max_length = 254)
 
+    def __str__(self):
+        return self.email
+
     using = 'reviews'
 
 class Book(models.Model):
@@ -17,7 +20,7 @@ class Review(models.Model):
     rating = models.IntegerField()
     comment = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
-    book_reviewed = models.ForeignKey(Book, on_delete=models.CASCADE)
-    written_by_user = models.ForeignKey(User, on_delete=models.CASCADE)
+    book = models.ForeignKey(Book, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
 
     using = 'reviews'

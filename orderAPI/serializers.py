@@ -8,6 +8,7 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ["email"]
+        ref_name = "orderAPI.UserSerializer"
 
 class BookSerializer(serializers.ModelSerializer):
     isbn = serializers.CharField(max_length=13, help_text='Please supply a 13 digit-long ISBN.', validators=[valid_isbn, isbn_length])

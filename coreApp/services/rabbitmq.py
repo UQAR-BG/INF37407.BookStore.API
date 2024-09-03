@@ -1,6 +1,5 @@
 from pika.exchange_type import ExchangeType
-import pika
-import json
+import json, os, pika
 
 class AmqpConfig:
     def __init__(self, name='', exchange='', routing_key='', durable=False, exclusive=False, auto_delete=False, arguments=None):
@@ -25,9 +24,15 @@ class AmqpMessage():
         self.properties = properties
         self.mandatory = mandatory
 
+credentials = pika.PlainCredentials(
+    username=os.getenv('RABBITMQ_DEFAULT_USER'),
+    password=os.getenv('RABBITMQ_DEFAULT_PASS')
+)
+
 params = pika.ConnectionParameters(
-    host='localhost', 
-    port=5672
+    host=os.getenv('RABBITMQ_HOST'), 
+    port=os.getenv('RABBITMQ_PORT'),
+    credentials=credentials
 )
 
 global_connection = pika.BlockingConnection(params)

@@ -1,4 +1,10 @@
+import os, json
+
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+
+from coreApp.services.rabbitmq import AmqpMessage, FastPublisher
 
 # Create your models here.
 class Book(models.Model):
@@ -16,3 +22,19 @@ class Book(models.Model):
         return "{}, Author: {}, ISBN: {}".format(self.title, self.author, self.isbn)
     
     using = 'books'
+
+publisher = FastPublisher(name=os.getenv('BOOKS_EXCHANGE'))
+
+# Signals go here.
+@receiver(post_save, sender=Book)
+def new_book_created(sender, instance, created, **kwargs):
+    if created:
+        print(f"New book added: {instance.title} by {instance.author}")
+
+        from .serializers import BookSerializer
+        serializer = BookSerializer(instance)
+
+        publisher.publish(message=AmqpMessage(
+            routing_key=os.getenv('BOOKS_CREATED_ROUTING_KEY'),
+            body=serializer.data
+        ))

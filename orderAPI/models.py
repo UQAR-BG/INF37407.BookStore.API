@@ -23,7 +23,7 @@ class Order(models.Model):
 
 class Book(models.Model):
     id = models.AutoField(primary_key=True)
-    isbn = models.CharField(max_length=13, help_text='Please supply a 13 digit-long ISBN.', unique=True)
+    isbn = models.CharField(max_length=13, help_text='Please supply a 13 digit-long ISBN.')
     price = models.DecimalField(max_digits=5, decimal_places=2)
     stock = models.IntegerField(default=0)
     orders = models.ManyToManyField(Order, through="BookLine")

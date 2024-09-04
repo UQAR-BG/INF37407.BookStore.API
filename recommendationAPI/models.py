@@ -12,7 +12,7 @@ class User(models.Model):
 
 class Book(models.Model):
     id = models.AutoField(primary_key=True)
-    isbn = models.CharField(max_length=13, help_text='Please supply a 13 digit-long ISBN.', unique=True)
+    isbn = models.CharField(max_length=13, help_text='Please supply a 13 digit-long ISBN.')
 
     def validate_unique_isbn(self, exclude=None):
         if (

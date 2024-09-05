@@ -1,15 +1,18 @@
 from rest_framework import generics, status
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
 
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 
+from coreApp.permissions import IsAdministrator
 from .models import Book
 from .serializers import BookSerializer
 
-class ListCreateBooks(generics.ListCreateAPIView):
+class ListBooks(generics.ListAPIView):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
+    permission_classes = [IsAuthenticated]
 
     @swagger_auto_schema(
         manual_parameters=[
@@ -37,8 +40,14 @@ class ListCreateBooks(generics.ListCreateAPIView):
         
         serializer = BookSerializer(books, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+class CreateBooks(generics.CreateAPIView):
+    queryset = Book.objects.all()
+    serializer_class = BookSerializer
+    permission_classes = [IsAuthenticated, IsAdministrator]
 
 class RetrieveUpdateDestroyBooks(generics.RetrieveUpdateDestroyAPIView):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
     lookup_field = "isbn"
+    permission_classes = [IsAuthenticated, IsAdministrator]

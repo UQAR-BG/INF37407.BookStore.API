@@ -1,3 +1,5 @@
+import uuid
+
 from drf_yasg.utils import swagger_auto_schema
 from django.contrib.auth.hashers import check_password, make_password
 
@@ -26,7 +28,9 @@ def login(request):
         
         if(valid_credentials):
             token = Token.objects.filter(user = realUser)
-            if not (token.exists()):
+            if token.exists():
+                token = token.first()
+            else:
                 token = Token.objects.create(user = realUser)
 
             serializer = UserDtoSerializer(realUser)
@@ -56,8 +60,9 @@ def signUp(request):
     email =request.data["email"]
     password =request.data["password"]
     role =request.data["role"]
+    username = f"{firstName}_{lastName}_{uuid.uuid4()}"
     
-    user = User(first_name=firstName, last_name=lastName,
+    user = User(username=username, first_name=firstName, last_name=lastName,
                                 email=email, password=make_password(password), role = role)
     user.save()
 

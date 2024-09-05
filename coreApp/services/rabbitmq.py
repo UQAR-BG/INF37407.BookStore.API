@@ -1,6 +1,6 @@
 from pika.exchange_type import ExchangeType
-import pika
-import json
+from pika import BlockingConnection, PlainCredentials, ConnectionParameters, BasicProperties
+import json, os, pika, threading
 
 class AmqpConfig:
     def __init__(self, name='', exchange='', routing_key='', durable=False, exclusive=False, auto_delete=False, arguments=None):
@@ -19,30 +19,73 @@ class AmqpExchangeConfig(AmqpConfig):
         super().__init__(name, '', '', durable, False, auto_delete, arguments)
 
 class AmqpMessage():
-    def __init__(self, routing_key, body, properties: pika.BasicProperties=None, mandatory=False):
+    def __init__(self, routing_key, body, properties: BasicProperties=None, mandatory=False):
         self.routing_key = routing_key
         self.body = body
         self.properties = properties
         self.mandatory = mandatory
 
-params = pika.ConnectionParameters(
-    host='localhost', 
-    port=5672
+credentials = PlainCredentials(
+    username=os.getenv('RABBITMQ_DEFAULT_USER'),
+    password=os.getenv('RABBITMQ_DEFAULT_PASS')
 )
 
-global_connection = pika.BlockingConnection(params)
+params = ConnectionParameters(
+    host=os.getenv('RABBITMQ_HOST'), 
+    port=os.getenv('RABBITMQ_PORT'),
+    credentials=credentials,
+    heartbeat=0
+)
 
-class AmqpClient:
-    def _init_channel(self):
-        self._channel = global_connection.channel()
+class AmqpClient():
+    def close(self):
+        self._channel.close()
+        self._connection.close()
 
-class Publisher(AmqpClient):
+    def _init_connection(self, parameters: ConnectionParameters):
+        self._connection = BlockingConnection(parameters)
+
+    def _init_channel(self, connection: BlockingConnection):
+        self._channel = connection.channel()
+
+class LongRunningAmqpClient(AmqpClient, threading.Thread):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.daemon = True
+        self.is_running = True
+        
+        self._init_connection(params)
+        self._connection.add_on_connection_blocked_callback(self.__on_blocked_callback)
+
+        self._init_channel(self._connection)
+
+    def run(self):
+        while self.is_running:
+            self._connection.process_data_events()
+
+    def stop(self):
+        print("Stopping...")
+        self.is_running = False
+        # Wait until all the data events have been processed
+        self._connection.process_data_events(time_limit=1)
+        if self._connection.is_open:
+            self._connection.close()
+        print("Stopped")
+
+    def __on_blocked_callback(self, connection: BlockingConnection, method_frame):
+        print("Connection is blocked. Sending a heartbeat to keep the connection alive.")
+        connection.process_data_events()
+
+class Publisher(LongRunningAmqpClient):
     def __init__(self, config=AmqpExchangeConfig()):
-        self._init_channel()
+        super().__init__()
         self.__init_exchange(config)
         self._config = config
 
-    def publish(self, message: AmqpMessage):
+    def publish(self, message):
+        self._connection.add_callback_threadsafe(lambda: self._publish(message))
+
+    def _publish(self, message: AmqpMessage):
         self._channel.basic_publish(
             exchange=self._config.name, 
             routing_key=message.routing_key, 
@@ -79,13 +122,25 @@ class FastPublisher(DirectPublisher):
             auto_delete=auto_delete,
             arguments=arguments
         )
+
+class FanoutPublisher(Publisher):
+    def __init__(self, name='', durable=False, internal=False, auto_delete=False, arguments=None):
+        super().__init__(AmqpExchangeConfig(
+            name=name,
+            type=ExchangeType.fanout,
+            durable=durable,
+            internal=internal,
+            auto_delete=auto_delete,
+            arguments=arguments
+        ))
         
-class Consumer(AmqpClient):
+class BaseConsumer(AmqpClient):
     def __init__(self, on_message_callback, config=AmqpConfig()):
         self._config = config
         self._on_message_callback = on_message_callback
 
-        self._init_channel()
+        self._init_connection(params)
+        self._init_channel(self._connection)
         self.__init_queue()
         self.__bind_queue()
 
@@ -118,7 +173,7 @@ class Consumer(AmqpClient):
             routing_key=self._config.routing_key
         )
 
-class FastConsumer(Consumer):
+class Consumer(BaseConsumer):
     def __init__(self, callback, name='', exchange='', routing_key='', exclusive=False, auto_delete=False):
         super().__init__(
             on_message_callback=callback,

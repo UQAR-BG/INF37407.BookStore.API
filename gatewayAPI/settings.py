@@ -11,10 +11,13 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Load environment variables from .env file
+load_dotenv()
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
@@ -45,7 +48,11 @@ INSTALLED_APPS = [
 
     # Custom applications
     'coreApp.apps.CoreappConfig',
-    'authAPI.apps.AuthapiConfig'
+    'authAPI.apps.AuthapiConfig',
+    'bookAPI.apps.BookapiConfig',
+    'orderAPI.apps.OrderapiConfig',
+    'reviewAPI.apps.ReviewapiConfig',
+    'recommendationAPI.apps.RecommendationapiConfig',
 ]
 
 MIDDLEWARE = [
@@ -86,6 +93,22 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
+    },
+    'books': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'bookAPI' / 'books.sqlite3'
+    },
+    'orders': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'orderAPI' / 'orders.sqlite3'
+    },
+    'reviews': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'reviewAPI' / 'reviews.sqlite3'
+    },
+    'recommendations': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'recommendationAPI' / 'recommendations.sqlite3'
     }
 }
 
@@ -151,4 +174,6 @@ SWAGGER_SETTINGS = {
         }
 }
 
-AUTH_USER_MODEL = 'authAPI.User'
+AUTH_USER_MODEL = "authAPI.User"
+
+DATABASE_ROUTERS = ['bookAPI.dbrouter.BookDBRouter', 'orderAPI.dbrouter.OrderDBRouter', 'recommendationAPI.dbrouter.RecommendationDBRouter', 'reviewAPI.dbrouter.ReviewDBRouter']

@@ -7,7 +7,7 @@ from rest_framework import status
 from rest_framework.authtoken.models import Token
 from rest_framework.permissions import IsAuthenticated
 
-from .serializers import LoginSerializer, UserSerializer
+from .serializers import LoginSerializer, UserSerializer, UserDtoSerializer
 from .models import User
 
 # Create your views here.
@@ -29,7 +29,7 @@ def login(request):
             if not (token.exists()):
                 token = Token.objects.create(user = realUser)
 
-            serializer = UserSerializer(realUser)
+            serializer = UserDtoSerializer(realUser)
             return Response(
                     {
                         "user": serializer.data,
@@ -90,7 +90,7 @@ def logout(request):
 def me(request):
     token = request.META['HTTP_AUTHORIZATION'].split(" ")[1]
     user = Token.objects.filter(key = token).first().user
-    user_serializer = UserSerializer(user, many=False)
+    user_serializer = UserDtoSerializer(user, many=False)
     return Response(
         {
         "data": user_serializer.data,

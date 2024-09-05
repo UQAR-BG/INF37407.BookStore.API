@@ -34,10 +34,14 @@ params = ConnectionParameters(
     host=os.getenv('RABBITMQ_HOST'), 
     port=os.getenv('RABBITMQ_PORT'),
     credentials=credentials,
-    heartbeat=30
+    heartbeat=0
 )
 
 class AmqpClient():
+    def close(self):
+        self._channel.close()
+        self._connection.close()
+
     def _init_connection(self, parameters: ConnectionParameters):
         self._connection = BlockingConnection(parameters)
 
@@ -51,11 +55,13 @@ class LongRunningAmqpClient(AmqpClient, threading.Thread):
         self.is_running = True
         
         self._init_connection(params)
+        self._connection.add_on_connection_blocked_callback(self.__on_blocked_callback)
+
         self._init_channel(self._connection)
 
     def run(self):
         while self.is_running:
-            self._connection.process_data_events(time_limit=1)
+            self._connection.process_data_events()
 
     def stop(self):
         print("Stopping...")
@@ -65,6 +71,10 @@ class LongRunningAmqpClient(AmqpClient, threading.Thread):
         if self._connection.is_open:
             self._connection.close()
         print("Stopped")
+
+    def __on_blocked_callback(self, connection: BlockingConnection, method_frame):
+        print("Connection is blocked. Sending a heartbeat to keep the connection alive.")
+        connection.process_data_events()
 
 class Publisher(LongRunningAmqpClient):
     def __init__(self, config=AmqpExchangeConfig()):

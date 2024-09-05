@@ -1,0 +1,9 @@
+# Start consumers
+
+python manage.py consume_all_created_books_for_orders
+python manage.py consume_all_created_books_for_recommendations
+python manage.py consume_all_created_books_for_reviews
+
+python manage.py consume_all_deleted_books_for_orders
+python manage.py consume_all_deleted_books_for_recommendations
+python manage.py consume_all_deleted_books_for_reviews

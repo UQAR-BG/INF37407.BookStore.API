@@ -1,7 +1,7 @@
 import os
 
 from django.db import models
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from rest_framework.serializers import ValidationError
 
@@ -44,7 +44,7 @@ publisher.start()
 @receiver(post_save, sender=Book)
 def new_book_created(sender, instance, created, **kwargs):
     if created:
-        print(f"New book added: {instance.title} by {instance.author}")
+        print(f"[Book API] New book added: {instance.title} by {instance.author}")
 
         from .serializers import BookSerializer
         serializer = BookSerializer(instance)
@@ -53,3 +53,15 @@ def new_book_created(sender, instance, created, **kwargs):
             routing_key=os.getenv('BOOKS_CREATED_ROUTING_KEY'),
             body=serializer.data
         ))
+
+@receiver(post_delete, sender=Book)
+def book_deleted(sender, instance, **kwargs):
+    print(f"[Book API] Book deleted: {instance.title} by {instance.author}")
+
+    from .serializers import BookSerializer
+    serializer = BookSerializer(instance)
+
+    publisher.publish(message=AmqpMessage(
+        routing_key=os.getenv('BOOKS_DELETED_ROUTING_KEY'),
+        body=serializer.data
+    ))

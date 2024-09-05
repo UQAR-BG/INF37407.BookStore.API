@@ -17,7 +17,6 @@ class Book(models.Model):
     def validate_unique_isbn(self, exclude=None):
         if (
             Book.objects
-            .exclude(id=self.id)
             .filter(isbn=self.isbn)
             .exists()
         ):
